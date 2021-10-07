@@ -1,12 +1,126 @@
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping LIst</title>
+  <meta charset="UTF-8">
+  <title>Shopping List App</title>
+  <link rel="stylesheet" href="main.css">
 </head>
+
 <body>
+
+
+  <div id="shopping-list">
+      <div class="header">
+        <h1>{{ header || 'Add items to the list' }}</h1>
+        <button 
+            v-if="editing" 
+            @click="doEdit(false)" 
+            class="btn btn-cancel"
+            >Cancel
+        </button>
+
+        <button 
+            v-else @click="doEdit(true)" 
+            class="btn btn-primary">
+            Add Items
+        </button>
+      </div>
     
     
+    <div 
+        v-if="editing" 
+        class="add-item-form">
+        <!-- use the '@' symbol instead of 'v-on' -->
+            <input 
+            @keyup.enter="saveItem" 
+            v-model="newItem" 
+            placeholder="Add New Item">
+
+        <label>
+            <input type="checkbox" v-model="newItemHighPriority">
+            High Priority
+        </label>
+
+        <!-- use ':' instead of 'v-bind' -->
+        <button 
+            :disabled="newItem.length === 0"
+            @click="saveItem" 
+            class="btn btn-prmary"
+            >
+            Save Item
+        </button>
+    </div>  
+
+    <p v-if = "items.length === 0">Yass... You bought it all, baby!!!</p>
+
+    <ul>
+        <li 
+            v-for="item in reversedItems" 
+            @click="togglePurchased(item)"
+            :key="item.id" 
+            :class="{strikeout: item.purchased, priority: item.highPriority}"
+            >
+            {{item.label}}
+        </li>
+    </ul>
+
+     
+  </div>
+
+  <script src="https://unpkg.com/vue@3"></script>
+  <script>
+
+    const shoppingList = Vue.createApp({
+      data() {
+            return {
+                header: 'Shopping List App',
+                editing: false,
+
+                newItemHighPriority: false,
+                newItemPriority: '',
+                newItem: '',
+                items: [
+                    {id:1, label:'10 hats', purchased: false, highPriority: false},
+                    {id:2, label:'12 Fake mustaches', purchased: false, highPriority: false},
+                    {id:3, label:'10 funny goggles', purchased: false, highPriority: true} 
+                ]
+            }
+        },
+
+        computed: {
+            reversedItems(){
+                return [...this.items].reverse()
+            }
+        },
+
+        methods: {
+
+            saveItem(){
+                this.items.push({
+                    id:this.items.length +1, 
+                    label: this.newItem,
+                    highPriority: this.newItemHighPriority
+                })
+                this.newItem = ''
+                this.newItemHighPriority = false
+            },
+
+            doEdit(editing) {
+                this.editing = editing
+                this.newItem = ''
+                this.newItemHighPriority = false
+            },
+
+            togglePurchased(item){
+                item.purchased = !item.purchased
+            }
+          
+        }
+      
+
+    }).mount('#shopping-list')
+  </script>
 </body>
-</html>
+
+</html> 
